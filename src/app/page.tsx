@@ -13,13 +13,19 @@ export default function HomePage() {
   const [hasSearched, setHasSearched] = useState(false); // Track if a search has been performed
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const resultsPerPage = 10; // Maximum results per page
+  const maxPageButtons = 5; // Maximum number of pagination buttons to display at a time
 
   const handleSearch = async () => {
     try {
       const res = await axios.get<{ judul: string; url: string; img: string; snippet: string; Sumber: string; Tanggal: string }[]>(
         `http://localhost:5000/search?q=${query}`
       );
-      setResults(res.data);
+
+      // Debugging: Log the results received from the backend
+      console.log('Results from backend:', res.data);
+
+      // Set the results and reset pagination
+      setResults(res.data); // Use all results from the backend
       setHasSearched(true); // Mark that a search has been performed
       setCurrentPage(1); // Reset to the first page on a new search
     } catch (err) {
@@ -41,8 +47,24 @@ export default function HomePage() {
   // Handle pagination
   const totalPages = Math.ceil(results.length / resultsPerPage);
 
+  // Calculate the range of pagination buttons to display
+  const startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+  const endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -93,14 +115,21 @@ export default function HomePage() {
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     border: '1px solid #eee',
                     gap: '1rem',
+                    width: '100%', // Ensure consistent width
+                    height: '150px', // Set a fixed height for all cards
                   }}
                 >
                   <img
                     src={r.img}
                     alt={r.judul}
-                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                    style={{
+                      width: '100px',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '5px',
+                    }}
                   />
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, overflow: 'hidden' }}>
                     <p style={{ margin: '0 0 0.5rem 0', color: '#888', fontSize: '0.9rem' }}>
                       <strong>Sumber:</strong> {r.Sumber}
                     </p>
@@ -112,7 +141,9 @@ export default function HomePage() {
                     <p style={{ margin: '0 0 0.5rem 0', color: '#888', fontSize: '0.9rem' }}>
                       <strong>Tanggal:</strong> {r.Tanggal}
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', color: '#4d5156' }}>{r.snippet}</p>
+                    <p style={{ margin: '0 0 0.5rem 0', color: '#4d5156', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {r.snippet}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -123,24 +154,51 @@ export default function HomePage() {
 
           {/* Pagination */}
           {results.length > resultsPerPage && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-              {Array.from({ length: totalPages }, (_, i) => (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', alignItems: 'center', gap: '0.5rem' }}>
+              <button
+                onClick={handlePrev}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '0.375rem 0.75rem', // Reduced size to 3/4
+                  borderRadius: '5px',
+                  border: '1px solid #ccc',
+                  backgroundColor: currentPage === 1 ? '#f0f0f0' : 'white',
+                  color: currentPage === 1 ? '#ccc' : '#0070f3',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                }}
+              >
+                &#8592; {/* Left arrow */}
+              </button>
+              {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
                 <button
-                  key={i}
-                  onClick={() => handlePageChange(i + 1)}
+                  key={page}
+                  onClick={() => handlePageChange(page)}
                   style={{
-                    padding: '0.5rem 1rem',
-                    margin: '0 0.25rem',
+                    padding: '0.375rem 0.75rem', // Reduced size to 3/4
                     borderRadius: '5px',
                     border: '1px solid #ccc',
-                    backgroundColor: currentPage === i + 1 ? '#0070f3' : 'white',
-                    color: currentPage === i + 1 ? 'white' : '#0070f3',
+                    backgroundColor: currentPage === page ? '#0070f3' : 'white',
+                    color: currentPage === page ? 'white' : '#0070f3',
                     cursor: 'pointer',
                   }}
                 >
-                  {i + 1}
+                  {page}
                 </button>
               ))}
+              <button
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '0.375rem 0.75rem', // Reduced size to 3/4
+                  borderRadius: '5px',
+                  border: '1px solid #ccc',
+                  backgroundColor: currentPage === totalPages ? '#f0f0f0' : 'white',
+                  color: currentPage === totalPages ? '#ccc' : '#0070f3',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                }}
+              >
+                &#8594; {/* Right arrow */}
+              </button>
             </div>
           )}
         </div>
