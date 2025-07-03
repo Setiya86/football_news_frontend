@@ -1,7 +1,6 @@
-// pages/index.js
-
 "use client";
 
+import React from 'react'; // Explicitly import React
 import { useState } from 'react';
 import axios from 'axios';
 
@@ -13,7 +12,6 @@ export default function HomePage() {
   const [hasSearched, setHasSearched] = useState(false); // Track if a search has been performed
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
   const resultsPerPage = 10; // Maximum results per page
-  const maxPageButtons = 5; // Maximum number of pagination buttons to display at a time
 
   const handleSearch = async () => {
     try {
@@ -47,10 +45,6 @@ export default function HomePage() {
   // Handle pagination
   const totalPages = Math.ceil(results.length / resultsPerPage);
 
-  // Calculate the range of pagination buttons to display
-  const startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
-  const endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
-
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
@@ -68,134 +62,110 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1 style={{ marginBottom: '1rem', textAlign: 'center' }}>Football News</h1>
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', justifyContent: 'center' }}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown} // Trigger search on Enter key press
-          placeholder="Masukkan kata kunci..."
-          style={{
-            flex: 1,
-            maxWidth: '500px',
-            padding: '0.5rem',
-            borderRadius: '5px',
-            border: '1px solid #ccc',
-          }}
-        />
-        <button
-          onClick={handleSearch}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: '5px',
-            border: 'none',
-            backgroundColor: '#0070f3',
-            color: 'white',
-            cursor: 'pointer',
-          }}
-        >
-          Search
-        </button>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 font-sans bg-gray-50">
+      <div className="w-full max-w-lg text-center">
+        <h1 className="mb-6 text-3xl font-bold text-gray-800">Football News</h1>
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown} // Trigger search on Enter key press
+            placeholder="Masukkan kata kunci..."
+            className="flex-1 w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={handleSearch}
+            className="w-full sm:w-auto px-6 py-3 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Search
+          </button>
+        </div>
       </div>
 
       {hasSearched ? (
-        <div>
+        <div className="w-full max-w-4xl mt-8">
           {currentResults.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex flex-col gap-4">
               {currentResults.map((r, index) => (
                 <div
                   key={index}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    border: '1px solid #eee',
-                    gap: '1rem',
-                    width: '100%', // Ensure consistent width
-                    height: '150px', // Set a fixed height for all cards
-                  }}
+                  className="flex flex-col sm:flex-row items-start p-4 border border-gray-200 rounded-lg shadow-md gap-4 bg-white"
                 >
                   <img
                     src={r.img}
                     alt={r.judul}
-                    style={{
-                      width: '100px',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '5px',
-                    }}
+                    className="w-full sm:w-24 h-24 object-cover rounded-md"
                   />
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <p style={{ margin: '0 0 0.5rem 0', color: '#888', fontSize: '0.9rem' }}>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="mb-2 text-sm text-gray-500">
                       <strong>Sumber:</strong> {r.Sumber}
                     </p>
-                    <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: '#1a0dab' }}>
-                      <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    <h2 className="mb-2 text-lg font-semibold text-blue-600">
+                      <a href={r.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
                         {r.judul}
                       </a>
                     </h2>
-                    <p style={{ margin: '0 0 0.5rem 0', color: '#888', fontSize: '0.9rem' }}>
+                    <p className="mb-2 text-sm text-gray-500">
                       <strong>Tanggal:</strong> {r.Tanggal}
                     </p>
-                    <p style={{ margin: '0 0 0.5rem 0', color: '#4d5156', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {r.snippet}
-                    </p>
+                    <p className="text-sm text-gray-700 line-clamp-6">{r.snippet}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p style={{ color: '#888', textAlign: 'center' }}>No results found.</p>
+            <p className="text-center text-gray-500">No results found.</p>
           )}
 
           {/* Pagination */}
-          {results.length > resultsPerPage && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem', alignItems: 'center', gap: '0.5rem' }}>
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 items-center gap-2">
               <button
                 onClick={handlePrev}
                 disabled={currentPage === 1}
-                style={{
-                  padding: '0.375rem 0.75rem', // Reduced size to 3/4
-                  borderRadius: '5px',
-                  border: '1px solid #ccc',
-                  backgroundColor: currentPage === 1 ? '#f0f0f0' : 'white',
-                  color: currentPage === 1 ? '#ccc' : '#0070f3',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                }}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === 1
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-blue-500 border-gray-300 hover:bg-gray-100'
+                }`}
               >
                 &#8592; {/* Left arrow */}
               </button>
-              {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  style={{
-                    padding: '0.375rem 0.75rem', // Reduced size to 3/4
-                    borderRadius: '5px',
-                    border: '1px solid #ccc',
-                    backgroundColor: currentPage === page ? '#0070f3' : 'white',
-                    color: currentPage === page ? 'white' : '#0070f3',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  // Show the first 3 pages, the last page, and pages around the current page
+                  return (
+                    page <= 3 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  );
+                })
+                .map((page, index, filteredPages) => (
+                  <React.Fragment key={page}>
+                    {index > 0 && page !== filteredPages[index - 1] + 1 && (
+                      <span className="px-2">...</span>
+                    )}
+                    <button
+                      onClick={() => handlePageChange(page)}
+                      className={`px-3 py-1 rounded-md border ${
+                        currentPage === page
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white text-blue-500 border-gray-300 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
+                ))}
               <button
                 onClick={handleNext}
                 disabled={currentPage === totalPages}
-                style={{
-                  padding: '0.375rem 0.75rem', // Reduced size to 3/4
-                  borderRadius: '5px',
-                  border: '1px solid #ccc',
-                  backgroundColor: currentPage === totalPages ? '#f0f0f0' : 'white',
-                  color: currentPage === totalPages ? '#ccc' : '#0070f3',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                }}
+                className={`px-3 py-1 rounded-md border ${
+                  currentPage === totalPages
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-blue-500 border-gray-300 hover:bg-gray-100'
+                }`}
               >
                 &#8594; {/* Right arrow */}
               </button>
@@ -203,7 +173,7 @@ export default function HomePage() {
           )}
         </div>
       ) : (
-        <div style={{ textAlign: 'center', color: '#888', marginTop: '2rem' }}>
+        <div className="text-center text-gray-500 mt-8">
           <p>Masukkan kata kunci untuk mencari artikel.</p>
         </div>
       )}
